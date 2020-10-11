@@ -30,6 +30,14 @@ def check_single_floating_network_output(
     output_spec: types.NestedSpec,
     expected_output_shape: typing.Tuple[int, ...],
     label: typing.Text):
+
+  num_outer_dim = len(output_spec.shape) - 1
+  if num_outer_dim == 1:
+    # If output of Q network is 2-D only check last dimension.
+    # This is to allow the output of the Q network to be a sequence of state-action values
+    # as is the case in a Transformer network
+    output_spec = tf.TensorSpec(output_spec.shape[-1], output_spec.dtype)
+
   expected_output_shape = tuple(int(x) for x in expected_output_shape)
   if not (isinstance(output_spec, tf.TensorSpec)
           and output_spec.shape == expected_output_shape
